@@ -1,7 +1,7 @@
 # nvim-ansible-vault
 
 A Neovim plugin for editing Ansible Vault — supports inline YAML values and whole-file vaults.
-Forked from https://github.com/19bischof/nvim-ansible-vault/tree/main
+Forked from <https://github.com/19bischof/nvim-ansible-vault/> to fix major bugs.
 
 ## Installation (Lazy.nvim)
 
@@ -22,31 +22,35 @@ Forked from https://github.com/19bischof/nvim-ansible-vault/tree/main
 ## Usage
 
 ### Default keybindings
-| Key | Action |
-|-----|--------|
+
+| Key          | Action                                                           |
+| ------------ | ---------------------------------------------------------------- |
 | `<leader>va` | Open inline/file vault in a secure popup (auto-detect at cursor) |
-| `<leader>vE` | Encrypt the entire current file |
-| `<leader>ve` | Encrypt YAML scalar at cursor into inline `!vault |-` |
+| `<leader>vE` | Encrypt the entire current file                                  |
+| `<leader>ve` | Encrypt YAML scalar at cursor into inline `!vault                | -`  |
 
 These are provided by default. To disable the defaults, set `vim.g.ansible_vault_no_default_mappings = 1` before the plugin loads (see below).
 
 ### Commands
+
 - `:AnsibleVaultAccess` — open inline/file vault at cursor in a popup
 - `:AnsibleVaultEncryptFile` — encrypt the current file in-place
 - `:AnsibleVaultEncryptInline` — encrypt the YAML scalar at cursor into inline vault
 
 ### How it works
+
 1. Place the cursor on the vault header (e.g. `password: !vault |`) or anywhere inside the vault block, then press `<leader>va`.
 2. The plugin decrypts via `ansible-vault view` and opens an editable popup.
 3. On save (`<C-s>` / `<CR>`), content is re‑encrypted using `ansible-vault encrypt_string` and written back.
 
 ### Popup controls
-| Action                | Key(s)                |
-|-----------------------|-----------------------|
-| Save & encrypt        | `<C-s>` or `<CR>`     |
-| Cancel / close        | `<Esc>` or `q`        |
-| Copy to clipboard     | `y`                   |
-| Show help             | `?`                   |
+
+| Action            | Key(s)            |
+| ----------------- | ----------------- |
+| Save & encrypt    | `<C-s>` or `<CR>` |
+| Cancel / close    | `<Esc>` or `q`    |
+| Copy to clipboard | `y`               |
+| Show help         | `?`               |
 
 ## Configuration
 
@@ -61,6 +65,7 @@ require("ansible-vault").setup({
 ```
 
 Notes:
+
 - If `ansible_cfg_directory` is omitted, the plugin will automatically search upward from the current file to find `ansible.cfg` or `.ansible.cfg` and use that directory for commands. This enables multiple vault-ids without hardcoding a password file.
   - `vault_identity_list` (preferred for multiple vault-ids)
   - or `vault_password_file`
@@ -75,6 +80,7 @@ vault_identity_list = default@~/.ansible/.vault_pass.txt,prod@~/.ansible/.vault_
 ```
 
 ### Disabling default keymaps
+
 Add this before the plugin loads, then set your own mappings:
 
 ```lua
@@ -83,6 +89,5 @@ vim.keymap.set("n", "<leader>va", "<Cmd>AnsibleVaultAccess<CR>", { desc = "Ansib
 vim.keymap.set("n", "<leader>vE", "<Cmd>AnsibleVaultEncryptFile<CR>", { desc = "Ansible Vault: encrypt file" })
 vim.keymap.set("n", "<leader>ve", "<Cmd>AnsibleVaultEncryptInline<CR>", { desc = "Ansible Vault: encrypt inline" })
 ```
-
 
 That's it! 🔐
