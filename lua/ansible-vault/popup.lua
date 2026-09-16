@@ -118,7 +118,7 @@ function Popup.open(config, p)
 		if popup_win and vim.api.nvim_win_is_valid(popup_win) then
 			vim.api.nvim_win_close(popup_win, true)
 		end
-		if vim.api.nvim_win_is_valid(original_win) then
+		if original_win and vim.api.nvim_win_is_valid(original_win) then
 			vim.api.nvim_set_current_win(original_win)
 		end
 	end
