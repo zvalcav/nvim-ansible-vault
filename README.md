@@ -11,9 +11,15 @@ Forked from <https://github.com/19bischof/nvim-ansible-vault/> to fix major bugs
   config = function()
     require("ansible-vault").setup({
       -- Omit ansible_cfg_directory to auto-detect nearest ansible.cfg (or .ansible.cfg)
-      -- ansible_cfg_directory = "/path/to/ansible",        -- optionally set explicitly
-      vault_password_file = "/path/to/your/.vaultpass",     -- optional if ansible_cfg_directory resolves vault-ids
-      vault_executable = "/absolute/path/to/ansible-vault", -- optional, defaults to "ansible-vault"
+      -- optionally set explicitly
+      -- ansible_cfg_directory = "/path/to/ansible",
+
+      -- optional if ansible_cfg_directory resolves vault-ids
+      vault_password_file = "/path/to/your/.vaultpass",
+
+      -- optional, defaults to "ansible-vault"
+      -- relative path is possible too, for .venv/bin/ansible-vault
+      vault_executable = "/absolute/path/to/ansible-vault",
     })
   end,
 }
