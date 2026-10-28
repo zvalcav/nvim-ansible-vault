@@ -10,9 +10,78 @@ M.config = {
 	vault_executable = "ansible-vault",
 	format_inline_to_block = true,
 	debug = false,
+	filetypes = { "yaml", "yaml.ansible", "ansible" },
 }
 
 local vault_buffers = {}
+
+local function is_target_filetype(ft)
+	if not ft or ft == "" then
+		return false
+	end
+	for _, target in ipairs(M.config.filetypes) do
+		if ft == target then
+			return true
+		end
+	end
+	return false
+end
+
+function M.attach_buffer(bufnr)
+	bufnr = bufnr or vim.api.nvim_get_current_buf()
+	if not vim.api.nvim_buf_is_valid(bufnr) then
+		return
+	end
+
+	local function create_cmd(name, fn, desc)
+		vim.api.nvim_buf_create_user_command(bufnr, name, fn, { desc = desc })
+	end
+
+	create_cmd("AnsibleVaultAccess", function()
+		M.vault_access(bufnr)
+	end, "Ansible Vault: access at cursor")
+	create_cmd("AnsibleVaultEncryptFile", function()
+		M.encrypt_current_file(bufnr)
+	end, "Ansible Vault: encrypt file")
+	create_cmd("AnsibleVaultDecryptFile", function()
+		M.decrypt_current_file(bufnr)
+	end, "Ansible Vault: decrypt file")
+	create_cmd("AnsibleVaultEncryptInline", function()
+		M.encrypt_inline_at_cursor(bufnr)
+	end, "Ansible Vault: encrypt inline")
+	create_cmd("AnsibleVaultDecryptInline", function()
+		M.decrypt_inline_at_cursor(bufnr)
+	end, "Ansible Vault: decrypt inline")
+
+	if not vim.g.ansible_vault_no_default_mappings then
+		local function map(lhs, rhs, desc)
+			vim.keymap.set("n", lhs, rhs, { buffer = bufnr, silent = true, desc = desc })
+		end
+		map("<leader>va", "<Cmd>AnsibleVaultAccess<CR>", "Ansible Vault: access at cursor")
+		map("<leader>vE", "<Cmd>AnsibleVaultEncryptFile<CR>", "Ansible Vault: encrypt file")
+		map("<leader>vD", "<Cmd>AnsibleVaultDecryptFile<CR>", "Ansible Vault: decrypt file")
+		map("<leader>ve", "<Cmd>AnsibleVaultEncryptInline<CR>", "Ansible Vault: encrypt inline")
+		map("<leader>vd", "<Cmd>AnsibleVaultDecryptInline<CR>", "Ansible Vault: decrypt inline")
+	end
+end
+
+function M.register_filetype_autocmd()
+	local group = vim.api.nvim_create_augroup("AnsibleVaultFileType", { clear = true })
+	vim.api.nvim_create_autocmd("FileType", {
+		group = group,
+		pattern = M.config.filetypes,
+		callback = function(args)
+			M.attach_buffer(args.buf)
+		end,
+		desc = "Attach Ansible Vault commands and mappings to configured filetypes",
+	})
+
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_loaded(buf) and is_target_filetype(vim.bo[buf].filetype) then
+			M.attach_buffer(buf)
+		end
+	end
+end
 
 function M.setup(opts)
 	vim.validate({ opts = { opts, "table", true } })
@@ -24,6 +93,7 @@ function M.setup(opts)
 			vault_buffers[args.buf] = nil
 		end,
 	})
+	M.register_filetype_autocmd()
 end
 
 local function fs_dirname(path)

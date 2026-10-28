@@ -8,8 +8,12 @@ Forked from <https://github.com/19bischof/nvim-ansible-vault/> to fix major bugs
 ```lua
 {
   "zvalcav/nvim-ansible-vault",
+  ft = { "yaml.ansible", "yaml", "ansible" },
   config = function()
     require("ansible-vault").setup({
+      -- Target file types to attach commands and keymaps (default: { "yaml", "yaml.ansible", "ansible" })
+      -- filetypes = { "yaml", "yaml.ansible", "ansible" },
+
       -- Omit ansible_cfg_directory to auto-detect nearest ansible.cfg (or .ansible.cfg)
       -- optionally set explicitly
       -- ansible_cfg_directory = "/path/to/ansible",
@@ -30,6 +34,8 @@ Forked from <https://github.com/19bischof/nvim-ansible-vault/> to fix major bugs
 
 ## Usage
 
+Commands and default keybindings are automatically scoped buffer-locally to supported file types (`yaml`, `yaml.ansible`, and `ansible`), preventing command and keybinding collisions in other buffers (such as Python, C++, or Markdown).
+
 ### Default keybindings
 
 | Key          | Action                                                           |
@@ -40,7 +46,7 @@ Forked from <https://github.com/19bischof/nvim-ansible-vault/> to fix major bugs
 | `<leader>ve` | Encrypt YAML scalar at cursor into inline `!vault \| -`          |
 | `<leader>vd` | Decrypt inline `!vault` at cursor back into plaintext            |
 
-These are provided by default. To disable the defaults, set `vim.g.ansible_vault_no_default_mappings = 1` before the plugin loads (see below).
+These are provided by default on matching buffers. To disable the defaults, set `vim.g.ansible_vault_no_default_mappings = 1` before the plugin loads (see below).
 
 ### Commands
 
@@ -69,6 +75,7 @@ These are provided by default. To disable the defaults, set `vim.g.ansible_vault
 
 ```lua
 require("ansible-vault").setup({
+  filetypes = { "yaml", "yaml.ansible", "ansible" },   -- target file types to attach commands and keymaps
   -- Omit ansible_cfg_directory to auto-detect nearest ansible.cfg (or .ansible.cfg)
   -- ansible_cfg_directory = "/path/to/ansible",       -- optionally set explicitly
   vault_password_file = "/path/to/ansible/.vaultpass", -- only needed if you have a single password and no ansible.cfg
@@ -80,6 +87,7 @@ require("ansible-vault").setup({
 
 Notes:
 
+- `filetypes` (default: `{ "yaml", "yaml.ansible", "ansible" }`): filetypes on which buffer-local commands and default keymaps are attached.
 - `format_inline_to_block` (default: `true`): when encrypting inline (`<leader>ve`), aligns ciphertext directly beneath `!vault` and inserts `# prettier-ignore` above the key to prevent linters/formatters from flattening it. Decrypting inline (`<leader>vd`) automatically cleans up the preceding `# prettier-ignore` line. Cursor on the `# prettier-ignore` line is recognized for decryption.
 - If `ansible_cfg_directory` is omitted, the plugin will automatically search upward from the current file to find `ansible.cfg` or `.ansible.cfg` and use that directory for commands. This enables multiple vault-ids without hardcoding a password file.
   - `vault_identity_list` (preferred for multiple vault-ids)
