@@ -14,6 +14,7 @@ local Popup = {}
 ---@param config table
 ---@param p PopupParams
 function Popup.open(config, p)
+	local original_win = vim.api.nvim_get_current_win()
 	local function select_vault_id(ids, prompt, on_choice)
 		-- Ensure the upcoming select UI can capture keys even if user was in insert mode
 		pcall(vim.cmd, "stopinsert")
