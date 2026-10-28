@@ -100,5 +100,7 @@ vim.bo[custom_buf].filetype = "yaml.custom"
 assert_eq(vim.fn.exists(":AnsibleVaultAccess"), 2, "AnsibleVaultAccess command exists in custom configured filetype")
 assert_true(vim.fn.maparg("<leader>va", "n") ~= "", "<leader>va mapping exists in custom configured filetype")
 
-print("ALL TESTS PASSED SUCCESSFULLY!")
-os.exit(0)
+print("ALL FILETYPE LOADING TESTS PASSED!")
+if not vim.g.__test_runner then
+	os.exit(0)
+end

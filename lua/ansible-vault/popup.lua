@@ -75,7 +75,7 @@ function Popup.open(config, p)
 	local row = math.floor((editor_lines - height) / 2)
 	local col = math.floor((editor_cols - width) / 2)
 
-	local popup_win = vim.api.nvim_open_win(popup_buf, true, {
+	local win_opts = {
 		relative = "editor",
 		width = width,
 		height = height,
@@ -83,9 +83,13 @@ function Popup.open(config, p)
 		col = col,
 		style = "minimal",
 		border = "rounded",
-		title = " Edit Vault: " .. p.vault_name .. " ",
-		title_pos = "center",
-	})
+	}
+	if vim.fn.has("nvim-0.9.0") == 1 then
+		win_opts.title = " Edit Vault: " .. p.vault_name .. " "
+		win_opts.title_pos = "center"
+	end
+
+	local popup_win = vim.api.nvim_open_win(popup_buf, true, win_opts)
 
 	vim.api.nvim_win_set_option(popup_win, "wrap", true)
 	vim.api.nvim_win_set_option(popup_win, "cursorline", true)

@@ -21,7 +21,7 @@ repos:
 
       - id: tests
         name: tests
-        entry: timeout 30s nvim --headless -u NONE -c "lua dofile('tests/test_filetype_loading.lua')"
+        entry: timeout 30s nvim --headless -u NONE -c "lua dofile('tests/run_tests.lua')"
         language: system
         pass_filenames: false
         always_run: true
