@@ -11,6 +11,7 @@ local test_suites = {
 	"tests/test_core.lua",
 	"tests/test_init.lua",
 	"tests/test_popup.lua",
+	"tests/test_which_key.lua",
 }
 
 print("==================================================")

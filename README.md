@@ -82,12 +82,14 @@ require("ansible-vault").setup({
   vault_executable = "ansible-vault",                  -- optional absolute path; defaults to this name
   format_inline_to_block = true,                       -- format inline ciphertext aligned with !vault and add # prettier-ignore above
   debug = false,                                       -- debug notifications (metadata only)
+  which_key = true,                                    -- auto-register which-key group and mappings if which-key is installed
 })
 ```
 
 Notes:
 
 - `filetypes` (default: `{ "yaml", "yaml.ansible", "ansible" }`): filetypes on which buffer-local commands and default keymaps are attached.
+- `which_key` (default: `true`): automatically registers the `<leader>v` group ("Ansible vault") and default mapping descriptions with `which-key.nvim` (`wk.add`) when `which-key` is detected.
 - `format_inline_to_block` (default: `true`): when encrypting inline (`<leader>ve`), aligns ciphertext directly beneath `!vault` and inserts `# prettier-ignore` above the key to prevent linters/formatters from flattening it. Decrypting inline (`<leader>vd`) automatically cleans up the preceding `# prettier-ignore` line. Cursor on the `# prettier-ignore` line is recognized for decryption.
 - If `ansible_cfg_directory` is omitted, the plugin will automatically search upward from the current file to find `ansible.cfg` or `.ansible.cfg` and use that directory for commands. This enables multiple vault-ids without hardcoding a password file.
   - `vault_identity_list` (preferred for multiple vault-ids)

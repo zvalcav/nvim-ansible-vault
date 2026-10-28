@@ -11,6 +11,7 @@ M.config = {
 	format_inline_to_block = true,
 	debug = false,
 	filetypes = { "yaml", "yaml.ansible", "ansible" },
+	which_key = true,
 }
 
 local vault_buffers = {}
@@ -25,6 +26,26 @@ local function is_target_filetype(ft)
 		end
 	end
 	return false
+end
+
+function M.register_which_key()
+	if M.config.which_key == false or vim.g.ansible_vault_no_default_mappings then
+		return false
+	end
+	local ok, wk = pcall(require, "which-key")
+	if not ok or not wk or type(wk.add) ~= "function" then
+		return false
+	end
+	-- selene: allow(mixed_table)
+	wk.add({
+		{ "<leader>v", group = "Ansible vault", icon = "" },
+		{ "<leader>va", desc = "Access Vault at Cursor", icon = "" },
+		{ "<leader>vE", desc = "Encrypt Entire File", icon = "" },
+		{ "<leader>vD", desc = "Decrypt Entire File", icon = "" },
+		{ "<leader>ve", desc = "Encrypt Inline Value", icon = "" },
+		{ "<leader>vd", desc = "Decrypt Inline Value", icon = "" },
+	})
+	return true
 end
 
 function M.attach_buffer(bufnr)
@@ -62,6 +83,7 @@ function M.attach_buffer(bufnr)
 		map("<leader>vD", "<Cmd>AnsibleVaultDecryptFile<CR>", "Ansible Vault: decrypt file")
 		map("<leader>ve", "<Cmd>AnsibleVaultEncryptInline<CR>", "Ansible Vault: encrypt inline")
 		map("<leader>vd", "<Cmd>AnsibleVaultDecryptInline<CR>", "Ansible Vault: decrypt inline")
+		M.register_which_key()
 	end
 end
 
@@ -94,6 +116,7 @@ function M.setup(opts)
 		end,
 	})
 	M.register_filetype_autocmd()
+	M.register_which_key()
 end
 
 local function fs_dirname(path)
@@ -349,10 +372,7 @@ function M.decrypt_current_file(bufnr)
 			end
 			local retry_ok, retry_err = Core.decrypt_file(cfg, file_path, { password = pw })
 			if not retry_ok then
-				vim.notify(
-					"Failed to decrypt file: " .. (retry_err or "unknown error"),
-					vim.log.levels.ERROR
-				)
+				vim.notify("Failed to decrypt file: " .. (retry_err or "unknown error"), vim.log.levels.ERROR)
 				return
 			end
 			vim.notify("File decrypted successfully", vim.log.levels.INFO)
@@ -522,8 +542,7 @@ function M.decrypt_inline_at_cursor(bufnr)
 				vim.notify("Decryption cancelled (no password provided)", vim.log.levels.WARN)
 				return
 			end
-			local retry_val, retry_err =
-				Core.decrypt_inline_content(cfg, vault_block.vault_content, { password = pw })
+			local retry_val, retry_err = Core.decrypt_inline_content(cfg, vault_block.vault_content, { password = pw })
 			if not retry_val then
 				vim.notify(
 					"Failed to decrypt inline value with provided password: " .. (retry_err or "unknown error"),
